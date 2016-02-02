@@ -13,7 +13,7 @@ import org.renci.hgvs.model.InsertionChangeAction;
 import org.renci.hgvs.model.InversionChangeAction;
 import org.renci.hgvs.model.SequenceType;
 import org.renci.hgvs.model.SubstitutionChangeAction;
-import org.renci.hgvs.model.Variant;
+import org.renci.hgvs.model.VariantMutation;
 
 public class HGVSParser {
 
@@ -30,8 +30,8 @@ public class HGVSParser {
         super();
     }
 
-    public Variant parse(String hgvs) {
-        Variant ret = new Variant();
+    public VariantMutation parse(String hgvs) {
+        VariantMutation ret = new VariantMutation();
         if (hgvs.contains(":")) {
             ret.setAccession(hgvs.substring(0, hgvs.indexOf(":")));
             String letter = hgvs.substring(hgvs.indexOf(":") + 1, hgvs.indexOf(":") + 2);
