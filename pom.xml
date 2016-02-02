@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.renci.hgvs</groupId>
   <artifactId>hgvs-parser</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <packaging>bundle</packaging>
   <properties>
     <commons.io.version>2.4</commons.io.version>
@@ -45,7 +45,7 @@
     <url>https://github.com/jdr0887/HGVS-Parser</url>
     <developerConnection>scm:git:git@github.com:jdr0887/HGVS-Parser.git</developerConnection>
     <connection>scm:git:git@github.com:jdr0887/HGVS-Parser.git</connection>
-    <tag>HEAD</tag>
+    <tag>hgvs-parser-0.0.1</tag>
   </scm>
   <dependencyManagement>
     <dependencies>
