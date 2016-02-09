@@ -1,23 +1,19 @@
 package org.renci.hgvs;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
-import org.apache.commons.lang3.Range;
-import org.renci.hgvs.model.ChangeType;
-import org.renci.hgvs.model.ComplexChangeAction;
-import org.renci.hgvs.model.DeletionChangeAction;
-import org.renci.hgvs.model.DuplicationChangeAction;
-import org.renci.hgvs.model.InsertionChangeAction;
-import org.renci.hgvs.model.InversionChangeAction;
-import org.renci.hgvs.model.SequenceType;
-import org.renci.hgvs.model.SubstitutionChangeAction;
-import org.renci.hgvs.model.VariantMutation;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.renci.hgvs.model.VariantMutationType;
+import org.renci.hgvs.model.dna.ComplexAlleleInfo;
+import org.renci.hgvs.model.dna.DNAChangeType;
+import org.renci.hgvs.model.dna.DNAVariantMutation;
+import org.renci.hgvs.model.dna.DeletionAlleleInfo;
+import org.renci.hgvs.model.dna.DuplicationAlleleInfo;
+import org.renci.hgvs.model.dna.InsertionAlleleInfo;
+import org.renci.hgvs.model.dna.InversionAlleleInfo;
+import org.renci.hgvs.model.dna.SubstitutionAlleleInfo;
+import org.renci.hgvs.model.protein.ProteinVariantMutation;
 
 public class HGVSParser {
 
@@ -34,81 +30,79 @@ public class HGVSParser {
         super();
     }
 
-    public VariantMutation parse(String hgvs) throws HGVSParserException {
-        VariantMutation ret = new VariantMutation();
+    public VariantMutationType determineType(String hgvs) throws HGVSParserException {
+        VariantMutationType ret = null;
+        if (!hgvs.contains(":")) {
+            throw new HGVSParserException("Invalid Format: no ':' found");
+        }
+        String letter = hgvs.substring(hgvs.indexOf(":") + 1, hgvs.indexOf(":") + 2);
+        for (VariantMutationType variantMutationType : VariantMutationType.values()) {
+            if (variantMutationType.getValue().equals(letter)) {
+                ret = variantMutationType;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    public DNAVariantMutation parseDNAMutation(String hgvs) throws HGVSParserException {
+        DNAVariantMutation ret = new DNAVariantMutation();
         try {
-            if (hgvs.contains(":")) {
-                ret.setAccession(hgvs.substring(0, hgvs.indexOf(":")));
-                String letter = hgvs.substring(hgvs.indexOf(":") + 1, hgvs.indexOf(":") + 2);
-                for (SequenceType sequenceType : SequenceType.values()) {
-                    if (sequenceType.getValue().equals(letter)) {
-                        ret.setSequenceType(sequenceType);
-                        break;
-                    }
-                }
 
-                Integer start = null;
-                Integer end = null;
+            ret.setSequenceType(determineType(hgvs));
 
-                String change = hgvs.substring(hgvs.indexOf(":") + 3, hgvs.length());
-                for (ChangeType changeType : ChangeType.values()) {
-
-                    List<String> regexes = changeType.getRegexes();
-
-                    for (String regex : regexes) {
-                        Pattern p = Pattern.compile(regex);
-                        Matcher m = p.matcher(change);
-                        if (m.matches()) {
-                            ret.setChangeType(changeType);
-                            String position = m.group(1);
-                            if (position.contains("_")) {
-                                start = Integer.valueOf(position.substring(0, position.indexOf("_")));
-                                end = Integer.valueOf(position.substring(position.indexOf("_") + 1, position.length()));
-                            } else {
-
-                                ScriptEngineManager mgr = new ScriptEngineManager();
-                                ScriptEngine engine = mgr.getEngineByName("JavaScript");
-                                start = Integer.valueOf(engine.eval(position).toString());
-                                end = start;
-                            }
-                            ret.setRange(Range.between(start, end));
-                            switch (ret.getChangeType()) {
-                                case DUPLICATION:
-                                    ret.setChangeAction(new DuplicationChangeAction(m.group(2)));
-                                    break;
-                                case DELETION:
-                                    ret.setChangeAction(new DeletionChangeAction(m.group(2)));
-                                    break;
-                                case INSERTION:
-                                    ret.setChangeAction(new InsertionChangeAction(m.group(2)));
-                                    break;
-                                case SUBSTITUTION:
-                                    ret.setChangeAction(new SubstitutionChangeAction(m.group(2), m.group(3)));
-                                    break;
-                                case INVERSION:
-                                    ret.setChangeAction(new InversionChangeAction(m.group(2)));
-                                    break;
-                                case COMPLEX:
-                                    if (m.groupCount() > 2) {
-                                        ret.setChangeAction(new ComplexChangeAction(m.group(3), m.group(2)));
-                                    } else {
-                                        ret.setChangeAction(new ComplexChangeAction(m.group(2)));
-                                    }
-                                    break;
-                            }
-
+            String change = hgvs.substring(hgvs.indexOf(":") + 3, hgvs.length());
+            for (DNAChangeType changeType : DNAChangeType.values()) {
+                String regex = changeType.getRegex();
+                Pattern p = Pattern.compile(regex);
+                Matcher m = p.matcher(change);
+                if (m.matches()) {
+                    ret.setChangeType(changeType);
+                    switch (ret.getChangeType()) {
+                        case DUPLICATION:
+                            ret.setAlleleInfo(new DuplicationAlleleInfo(m.group(1), m.group(2)));
                             break;
-                        }
-
+                        case DELETION:
+                            String numeric = m.group(2);
+                            DeletionAlleleInfo deletionAlleleInfo = new DeletionAlleleInfo(m.group(1));
+                            if (NumberUtils.isNumber(numeric)) {
+                                deletionAlleleInfo.setBaseLength(Integer.valueOf(numeric));
+                            } else {
+                                deletionAlleleInfo.setBases(m.group(2));
+                            }
+                            ret.setAlleleInfo(deletionAlleleInfo);
+                            break;
+                        case INSERTION:
+                            ret.setAlleleInfo(new InsertionAlleleInfo(m.group(1), m.group(2)));
+                            break;
+                        case SUBSTITUTION:
+                            ret.setAlleleInfo(new SubstitutionAlleleInfo(m.group(1), m.group(2), m.group(3)));
+                            break;
+                        case INVERSION:
+                            ret.setAlleleInfo(new InversionAlleleInfo(m.group(1), m.group(2)));
+                            break;
+                        case COMPLEX:
+                            if (m.groupCount() > 2) {
+                                ret.setAlleleInfo(new ComplexAlleleInfo(m.group(1), m.group(3), m.group(2)));
+                            } else {
+                                ret.setAlleleInfo(new ComplexAlleleInfo(m.group(1), m.group(2)));
+                            }
+                            break;
                     }
 
+                    break;
                 }
 
             }
-        } catch (NumberFormatException | ScriptException e) {
+        } catch (NumberFormatException e) {
             throw new HGVSParserException(e);
         }
 
         return ret;
     }
+
+    public ProteinVariantMutation parseProteinMutation(String hgvs) throws HGVSParserException {
+        throw new HGVSParserException("Not currently implemented");
+    }
+
 }
