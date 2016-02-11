@@ -33,7 +33,7 @@ public class HGVSParser {
     public VariantMutationType determineType(String hgvs) throws HGVSParserException {
         VariantMutationType ret = null;
         if (!hgvs.contains(":")) {
-            throw new HGVSParserException("Invalid Format: no ':' found");
+            throw new HGVSParserException("Invalid Format: no ':' found: " + hgvs);
         }
         String letter = hgvs.substring(hgvs.indexOf(":") + 1, hgvs.indexOf(":") + 2);
         for (VariantMutationType variantMutationType : VariantMutationType.values()) {
@@ -53,44 +53,47 @@ public class HGVSParser {
 
             String change = hgvs.substring(hgvs.indexOf(":") + 3, hgvs.length());
             for (DNAChangeType changeType : DNAChangeType.values()) {
-                String regex = changeType.getRegex();
-                Pattern p = Pattern.compile(regex);
-                Matcher m = p.matcher(change);
-                if (m.matches()) {
-                    ret.setChangeType(changeType);
-                    switch (ret.getChangeType()) {
-                        case DUPLICATION:
-                            ret.setAlleleInfo(new DuplicationAlleleInfo(m.group(1), m.group(2)));
-                            break;
-                        case DELETION:
-                            String numeric = m.group(2);
-                            DeletionAlleleInfo deletionAlleleInfo = new DeletionAlleleInfo(m.group(1));
-                            if (NumberUtils.isNumber(numeric)) {
-                                deletionAlleleInfo.setBaseLength(Integer.valueOf(numeric));
-                            } else {
-                                deletionAlleleInfo.setBases(m.group(2));
-                            }
-                            ret.setAlleleInfo(deletionAlleleInfo);
-                            break;
-                        case INSERTION:
-                            ret.setAlleleInfo(new InsertionAlleleInfo(m.group(1), m.group(2)));
-                            break;
-                        case SUBSTITUTION:
-                            ret.setAlleleInfo(new SubstitutionAlleleInfo(m.group(1), m.group(2), m.group(3)));
-                            break;
-                        case INVERSION:
-                            ret.setAlleleInfo(new InversionAlleleInfo(m.group(1), m.group(2)));
-                            break;
-                        case COMPLEX:
-                            if (m.groupCount() > 2) {
-                                ret.setAlleleInfo(new ComplexAlleleInfo(m.group(1), m.group(3), m.group(2)));
-                            } else {
-                                ret.setAlleleInfo(new ComplexAlleleInfo(m.group(1), m.group(2)));
-                            }
-                            break;
+
+                for (String regex : changeType.getRegexes()) {
+                    Pattern p = Pattern.compile(regex);
+                    Matcher m = p.matcher(change);
+                    if (m.matches()) {
+                        ret.setChangeType(changeType);
+                        switch (ret.getChangeType()) {
+                            case DUPLICATION:
+                                ret.setAlleleInfo(new DuplicationAlleleInfo(m.group(1), m.group(2)));
+                                break;
+                            case DELETION:
+                                String numeric = m.group(2);
+                                DeletionAlleleInfo deletionAlleleInfo = new DeletionAlleleInfo(m.group(1));
+                                if (NumberUtils.isNumber(numeric)) {
+                                    deletionAlleleInfo.setBaseLength(Integer.valueOf(numeric));
+                                } else {
+                                    deletionAlleleInfo.setBases(m.group(2));
+                                }
+                                ret.setAlleleInfo(deletionAlleleInfo);
+                                break;
+                            case INSERTION:
+                                ret.setAlleleInfo(new InsertionAlleleInfo(m.group(1), m.group(2)));
+                                break;
+                            case SUBSTITUTION:
+                                ret.setAlleleInfo(new SubstitutionAlleleInfo(m.group(1), m.group(2), m.group(3)));
+                                break;
+                            case INVERSION:
+                                ret.setAlleleInfo(new InversionAlleleInfo(m.group(1), m.group(2)));
+                                break;
+                            case COMPLEX:
+                                if (m.groupCount() > 2) {
+                                    ret.setAlleleInfo(new ComplexAlleleInfo(m.group(1), m.group(3), m.group(2)));
+                                } else {
+                                    ret.setAlleleInfo(new ComplexAlleleInfo(m.group(1), m.group(2)));
+                                }
+                                break;
+                        }
+
+                        break;
                     }
 
-                    break;
                 }
 
             }
