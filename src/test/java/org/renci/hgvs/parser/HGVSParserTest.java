@@ -2,6 +2,10 @@ package org.renci.hgvs.parser;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import org.junit.Test;
 import org.renci.hgvs.HGVSParser;
 import org.renci.hgvs.HGVSParserException;
@@ -15,7 +19,25 @@ import org.renci.hgvs.model.dna.SubstitutionAlleleInfo;
 public class HGVSParserTest {
 
     @Test
+    public void hgvsFromClinVar() throws HGVSParserException {
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("hgvs.txt")))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                DNAVariantMutation a = HGVSParser.getInstance().parseDNAMutation(line.trim());
+                if (a.getChangeType() == null) {
+                    System.out.println(line);
+                }
+                assertTrue(a.getChangeType() != null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void duplication() throws HGVSParserException {
+
         DNAVariantMutation a = HGVSParser.getInstance().parseDNAMutation("NM_006642.3:c.1339dupG");
         assertTrue(a.getChangeType().equals(DNAChangeType.DUPLICATION));
         assertTrue(((DuplicationAlleleInfo) a.getAlleleInfo()).getBases().equals("G"));
