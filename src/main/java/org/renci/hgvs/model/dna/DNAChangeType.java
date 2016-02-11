@@ -1,5 +1,8 @@
 package org.renci.hgvs.model.dna;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * http://www.hgvs.org/mutnomen/examplesDNA.html
  * 
@@ -7,31 +10,52 @@ package org.renci.hgvs.model.dna;
  */
 public enum DNAChangeType {
 
-    SUBSTITUTION(String.format("(%s|%s)(.)>(.)", "\\*?-?\\d+", "\\*?-?\\d+_?\\+?\\*?-?\\d+")),
+    SUBSTITUTION(Arrays.asList(String.format("(%s|%s)(.)>(.)", "\\*?-?\\d+", "\\*?-?\\d+_?\\+?\\*?-?\\d+"))),
 
-    DELETION(String.format("(%s|%s|%s|%s|%s|%s|%s|%s)del([A-Z]+|\\d+)?", "\\*?-?\\d+", "\\*?-?\\d+_?\\+?\\*?-?\\d+", "\\d+-\\d+_\\d+",
-            "\\d+_\\d+\\+\\d+", "\\d+-\\d+_\\d+-\\d+", "\\d+\\+\\d+_\\d+\\+\\d+", "\\d+-\\d+_\\d+\\+\\d+", "\\d+-\\?_\\d+\\+\\?")),
+    DELETION(Arrays.asList(String.format("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)del([A-Z]+|\\d+)?",
+            "[\\*|-]?\\d+", "[\\*|-]?\\d+_[\\+|\\*|-]?\\d+", "[\\*|-]?\\d+[\\+|-]\\d+", "\\d+[-|\\+]?\\d+_\\d+", "-?\\d+_\\d+[-|\\+]?\\d+",
+            "\\*?-?\\d+[-|\\+]?\\d+_-?\\*?\\d+?[-|\\+]?\\d+", "-?\\d+-?\\??_\\*?-?\\d+\\+?\\??", "\\d+-?\\+?\\d+_\\*\\(\\d+_\\d+\\)",
+            "\\*?\\(.+\\)_\\*?\\(.+\\)", "(.+)-\\d+_\\d+\\+\\d+", "(.+)-\\d+_(.+)-\\d+", "(.+)_-?\\d+-?\\+?\\d+",
+            "\\(.+\\)-[\\d|\\?]+_\\(.+\\)[-|\\+]?\\d+", "[\\d|\\?]+-[\\d|\\?]+_\\(.+\\)", "\\(.+\\)[-|\\+][\\d|\\?]+_\\(.+\\)",
+            "\\(.+\\)[-|\\+][\\d|\\?]+_\\(.+\\)[-|\\+]\\d+", "\\(\\d+_\\d+\\)", "\\(.+\\)-\\d+_\\*?\\(.+\\)", "\\d+_\\(.+\\)",
+            "\\(.+\\)_\\-?\\d+\\+\\?", "\\?-\\d+_\\d+\\+\\?", "\\d+[-|\\+][\\?|\\d+]_[\\*|-]\\(.+\\)"))),
 
-    DUPLICATION(String.format("(%s|%s)dup(.+)?", "\\*?-?\\d+", "\\*?-?\\d+_?\\+?\\*?-?\\d+")),
+    DUPLICATION(Arrays.asList(String.format("(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)dup(.+)?", "[\\*|-]?\\d+", "[\\*|-]?\\d+[\\+|-]?\\d+",
+            "[\\*|-]?\\d+_[\\+|\\*|-]?\\d+", "[\\*|-]?[\\d|\\?]+[\\+|-]?[\\d|\\?]+_[\\*|-]?[\\d|\\?]+[\\+|-][\\d|\\?]+",
+            "[\\*|-]?\\d+[\\+|-]?\\d+_[\\*|-]?\\d+", "[\\*|-]?\\d+[-|\\+|]?\\??\\d+_[\\*|-]?\\d+[-|\\+]?\\??\\d+", "\\(.+\\)_\\(.+\\)",
+            "\\(.+\\)-\\d+_\\(.+\\)", "-?\\d+[-|\\+]?\\d+_\\d+", "\\d+-[\\?|\\d+]", "\\(.+\\)_\\d+\\+\\?",
+            "\\d+[-|\\+][\\?|\\d+]_[\\*|-]\\(.+\\)"))),
 
-    INSERTION(String.format("(%s|%s)ins(.+)", "\\*?-?\\d+", "\\*?-?\\d+_?\\+?\\*?-?\\d+")),
+    REPEATED(Arrays.asList(String.format("(%s|%s|%s|%s)([A-Z])?\\[(\\d+)\\]", "\\*?-?\\d+", "[-|\\*]?\\d+_?[-|\\+|\\*]?\\d+",
+            "\\d+[-|\\+]?\\d+_\\d+[-|\\+]?\\d+", "-?\\d+_-?\\d+"))),
 
-    INVERSION(String.format("(%s)inv(.+)?", "\\*?-?\\d+_?\\+?\\*?-?\\d+")),
+    INSERTION(Arrays
+            .asList(String.format("(%s|%s|%s)ins(.+)", "[\\*|-]?\\d+", "\\*?-?\\d+_?\\+?\\*?-?\\d+", "\\d+-?\\+?\\d+_\\d+-?\\+?\\d+"))),
 
-    COMPLEX(String.format("(%s)del(.+)?ins(.+)", "\\*?-?\\d+_?\\+?\\*?-?\\d+"));
+    INVERSION(Arrays.asList(String.format("(%s|%s|%s)inv(.+)?", "\\*?-?\\d+_?\\+?\\*?-?\\d+", "\\d+[-|\\+]\\d+_\\d+[-|\\+]\\d+",
+            "\\d+[-|\\+][\\d+|\\?]_\\*\\(.+\\)"))),
 
-    private String regex;
+    COMPLEX(Arrays.asList(String.format("(%s|%s|%s|%s|%s|%s|%s)del(.+)?ins(.+)", "[\\*|-]?\\d+", "[\\*|-]?\\d+[\\+|-]\\d+?",
+            "[\\*|-]?\\d+_[\\+|\\*|-]?\\d+", "[\\*|-]?\\d+_[\\+|\\*|-]?\\d+", "-?\\d+[-|\\+]?\\d+_-?\\d+[-|\\+]?\\d+",
+            "\\d+[\\+|-]\\d+_\\*?\\d+", "\\d+_\\d+\\+\\d+"))),
 
-    private DNAChangeType(String regex) {
-        this.regex = regex;
+    MOSAICISM(Arrays.asList(String.format("(%s|%s|%s)(.+)=/?(\\d+)?(.)?>?(.)?", "\\*?-?\\d+", "-?\\d+-?\\+?\\d+", "\\d+_\\d+"),
+            "\\[=/\\d+_\\d+del\\d+\\]")),
+
+    CHIMERISM(Arrays.asList("=//(\\d+)?(.)>(.)"));
+
+    private List<String> regexes;
+
+    private DNAChangeType(List<String> regexes) {
+        this.regexes = regexes;
     }
 
-    public String getRegex() {
-        return regex;
+    public List<String> getRegexes() {
+        return regexes;
     }
 
-    public void setRegex(String regex) {
-        this.regex = regex;
+    public void setRegexes(List<String> regexes) {
+        this.regexes = regexes;
     }
 
 }
