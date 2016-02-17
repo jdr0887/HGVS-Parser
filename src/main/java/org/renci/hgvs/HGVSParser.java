@@ -50,7 +50,7 @@ public class HGVSParser {
         try {
 
             ret.setSequenceType(determineType(hgvs));
-
+            ret.setAccession(hgvs.substring(0, hgvs.indexOf(":")));
             String change = hgvs.substring(hgvs.indexOf(":") + 3, hgvs.length());
             for (DNAChangeType changeType : DNAChangeType.values()) {
 
