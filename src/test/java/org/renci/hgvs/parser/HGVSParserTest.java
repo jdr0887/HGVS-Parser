@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.renci.hgvs.HGVSParser;
 import org.renci.hgvs.HGVSParserException;
@@ -171,30 +172,35 @@ public class HGVSParserTest {
     public void substitution() throws HGVSParserException {
         DNAVariantMutation a = HGVSParser.getInstance().parseDNAMutation("NM_001017995.2:c.127C>T");
         assertTrue(a.getChangeType().equals(DNAChangeType.SUBSTITUTION));
+        assertTrue(StringUtils.isNotEmpty(a.getAccession()) && a.getAccession().equals("NM_001017995.2"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getLocation().equals("127"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getWildtype().equals("C"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getMutation().equals("T"));
 
         a = HGVSParser.getInstance().parseDNAMutation("NM_001017995.2:c.127-16C>T");
         assertTrue(a.getChangeType().equals(DNAChangeType.SUBSTITUTION));
+        assertTrue(StringUtils.isNotEmpty(a.getAccession()));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getLocation().equals("127-16"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getWildtype().equals("C"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getMutation().equals("T"));
 
         a = HGVSParser.getInstance().parseDNAMutation("NM_001256819.1:c.*142T>G");
         assertTrue(a.getChangeType().equals(DNAChangeType.SUBSTITUTION));
+        assertTrue(StringUtils.isNotEmpty(a.getAccession()));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getLocation().equals("*142"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getWildtype().equals("T"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getMutation().equals("G"));
 
         a = HGVSParser.getInstance().parseDNAMutation("NM_001040613.2:c.*7-2A>G");
         assertTrue(a.getChangeType().equals(DNAChangeType.SUBSTITUTION));
+        assertTrue(StringUtils.isNotEmpty(a.getAccession()));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getLocation().equals("*7-2"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getWildtype().equals("A"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getMutation().equals("G"));
 
         a = HGVSParser.getInstance().parseDNAMutation("NM_001286044.1:c.-100+670A>C");
         assertTrue(a.getChangeType().equals(DNAChangeType.SUBSTITUTION));
+        assertTrue(StringUtils.isNotEmpty(a.getAccession()));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getLocation().equals("-100+670"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getWildtype().equals("A"));
         assertTrue(((SubstitutionAlleleInfo) a.getAlleleInfo()).getMutation().equals("C"));
