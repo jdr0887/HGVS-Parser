@@ -2,7 +2,6 @@ package org.renci.hgvs.model.dna;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.Range;
 import org.renci.hgvs.model.AlleleInfo;
 import org.renci.hgvs.model.VariantMutationType;
 
