@@ -16,7 +16,9 @@ public enum VariantMutationType {
 
     MITOCHONDRIAL_SEQUENCE("m"),
 
-    NON_CODING_RNA_SEQUENCE("r"),
+    RNA_SEQUENCE("r"),
+
+    NON_CODING_RNA_SEQUENCE("n"),
 
     PROTEIN_SEQUENCE("p");
 
